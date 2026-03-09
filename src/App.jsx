@@ -775,7 +775,7 @@ export default function MedBagApp() {
             </div>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* ── 아이 정보 탭 — 보기 ── */}
       {screen === "child" && (() => {
