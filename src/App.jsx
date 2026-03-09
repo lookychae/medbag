@@ -624,21 +624,25 @@ export default function MedBagApp() {
             <div style={{ position:"absolute", top:-30, right:-30, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.08)" }} />
             <button onClick={() => setScreen("home")} style={{
               background:"rgba(255,255,255,0.2)", border:"none", borderRadius:10,
-              padding:"6px 12px", color:"white", fontSize:13, cursor:"pointer", marginBottom:10,
+              padding:"5px 12px", color:"white", fontSize:12, cursor:"pointer", marginBottom:8,
             }}>← 목록</button>
 
-            <div style={{ color:"rgba(255,255,255,0.7)", fontSize:13, marginBottom:2 }}>{selected.date}</div>
-            <div style={{ color:"white", fontSize:20, fontWeight:800, letterSpacing:-0.8 }}>{selected.hospital}</div>
-            <div style={{ color:"rgba(255,255,255,0.75)", fontSize:13, marginTop:2 }}>{selected.doctor}</div>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div>
+                <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginBottom:1 }}>{selected.date}</div>
+                <div style={{ color:"white", fontSize:18, fontWeight:800, letterSpacing:-0.5 }}>{selected.hospital}</div>
+                <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginTop:1 }}>{selected.doctor}</div>
+              </div>
+            </div>
 
-            <div style={{ display:"flex", gap:8, marginTop:10, flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap:6, marginTop:8, flexWrap:"wrap" }}>
               <div style={{
-                background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"4px 10px",
+                background:"rgba(255,255,255,0.15)", borderRadius:8, padding:"3px 10px",
                 fontSize:12, color:"white", fontWeight:600,
               }}>🩺 {selected.symptom}</div>
               {selected.child && (
                 <div style={{
-                  background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"4px 10px",
+                  background:"rgba(255,255,255,0.15)", borderRadius:8, padding:"3px 10px",
                   fontSize:12, color:"white", fontWeight:600,
                 }}>👶 {selected.child}</div>
               )}
