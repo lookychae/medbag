@@ -322,9 +322,9 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
               borderRadius:12, padding:"13px", color:"rgba(255,255,255,0.55)", fontSize:13, cursor:"pointer",
             }}>다시 스캔</button>
             <button onClick={() => onSave(result)} style={{
-              flex:2, background:"linear-gradient(135deg,#64C8FF,#A78BFA)", border:"none",
+              flex:2, background:"#1A1A2E", border:"none",
               borderRadius:12, padding:"13px", color:"white", fontSize:14, fontWeight:700, cursor:"pointer",
-            }}>저장하기 💾</button>
+            }}>저장하기</button>
           </div>
         </div>
       )}
@@ -738,9 +738,9 @@ export default function MedBagApp() {
                   <button
                     onClick={() => setMemoEditing(false)}
                     style={{
-                      background: selected.accent+"18", border:"none", borderRadius:8,
-                      padding:"4px 10px", fontSize:11, fontWeight:700,
-                      color:selected.accent, cursor:"pointer",
+                      background: "#1A1A2E", border:"none", borderRadius:8,
+                      padding:"6px 14px", fontSize:12, fontWeight:700,
+                      color:"white", cursor:"pointer",
                     }}
                   >저장</button>
                 )}
@@ -933,8 +933,8 @@ export default function MedBagApp() {
                 </button>
                 <span style={{ color:"white", fontSize:15, fontWeight:700 }}>아이 정보 수정</span>
                 <button onClick={() => { setChildProfile(profileDraft); setScreen("child"); }} style={{
-                  background:"#64C8FF", border:"none", borderRadius:10,
-                  padding:"6px 14px", color:"#1A1A2E", fontSize:13, fontWeight:800, cursor:"pointer", flexShrink:0,
+                  background:"#1A1A2E", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:10,
+                  padding:"6px 14px", color:"white", fontSize:13, fontWeight:700, cursor:"pointer", flexShrink:0,
                 }}>저장</button>
               </div>
             </div>
@@ -1121,10 +1121,11 @@ export default function MedBagApp() {
 
               {/* 저장 버튼 */}
               <button onClick={() => { setChildProfile(profileDraft); setScreen("child"); }} style={{
-                background:"linear-gradient(135deg,#1A1A2E,#4A4A8E)", border:"none",
+                background:"#1A1A2E", border:"none",
                 borderRadius:14, padding:"16px", color:"white", fontSize:15,
                 fontWeight:700, cursor:"pointer", marginTop:4,
-              }}>저장하기 ✓</button>
+                boxShadow:"0 4px 14px rgba(0,0,0,0.15)",
+              }}>저장하기</button>
             </div>
           </div>
         );
