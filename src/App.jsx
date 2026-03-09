@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "./firebase";
+import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 
 // 제형 타입
 const FORM_ICON = {
@@ -390,13 +392,17 @@ function MedBadge({ dosage, color, form, small = false }) {
 export default function MedBagApp() {
   const [screen, setScreen] = useState("home");
   const [selected, setSelected] = useState(null);
-  const [prescriptions, setPrescriptions] = useState(SAMPLE_PRESCRIPTIONS);
   const [scanStep, setScanStep] = useState(0);
   const [scanning, setScanning] = useState(false);
   const [newRx, setNewRx] = useState(null);
   const [search, setSearch] = useState("");
-  const [memos, setMemos] = useState({}); // { [rx.id]: string }
   const [memoEditing, setMemoEditing] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileDraft, setProfileDraft] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [prescriptions, setPrescriptions] = useState(SAMPLE_PRESCRIPTIONS);
+  const [memos, setMemos] = useState({});
   const [childProfile, setChildProfile] = useState({
     name: "이준서", birth: "2020-03-15", gender: "남", bloodType: "A+",
     height: 110, weight: 18.5,
@@ -413,8 +419,51 @@ export default function MedBagApp() {
       { date: "2024-02-01", value: 15.8 },
     ],
   });
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [profileDraft, setProfileDraft] = useState(null);
+
+  // Firestore에서 데이터 불러오기
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const rxDoc = await getDoc(doc(db, "medbag", "prescriptions"));
+        if (rxDoc.exists()) setPrescriptions(rxDoc.data().list);
+
+        const memosDoc = await getDoc(doc(db, "medbag", "memos"));
+        if (memosDoc.exists()) setMemos(memosDoc.data().map);
+
+        const childDoc = await getDoc(doc(db, "medbag", "child"));
+        if (childDoc.exists()) setChildProfile(childDoc.data());
+      } catch (e) {
+        console.log("Firebase 로드 오류:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Firestore에 저장
+  const savePrescriptions = async (data) => {
+    setPrescriptions(data);
+    try { await setDoc(doc(db, "medbag", "prescriptions"), { list: data }); } catch (e) { console.log(e); }
+  };
+  const saveMemos = async (data) => {
+    setMemos(data);
+    try { await setDoc(doc(db, "medbag", "memos"), { map: data }); } catch (e) { console.log(e); }
+  };
+  const saveChildProfile = async (data) => {
+    setChildProfile(data);
+    try { await setDoc(doc(db, "medbag", "child"), data); } catch (e) { console.log(e); }
+  };
+
+  if (loading) return (
+    <div style={{
+      display:"flex", alignItems:"center", justifyContent:"center",
+      height:"100vh", background:"#1A1A2E", flexDirection:"column", gap:16,
+    }}>
+      <div style={{ fontSize:40 }}>💊</div>
+      <div style={{ color:"white", fontSize:16, fontWeight:700 }}>약봉지 불러오는 중...</div>
+    </div>
+  );
 
   const filtered = prescriptions.filter(p =>
     !search ||
@@ -458,7 +507,7 @@ export default function MedBagApp() {
   };
 
   const confirmAdd = () => {
-    setPrescriptions([newRx, ...prescriptions]);
+    savePrescriptions([newRx, ...prescriptions]);
     setNewRx(null);
     setScanStep(0);
     setScreen("home");
@@ -758,7 +807,7 @@ export default function MedBagApp() {
                   autoFocus
                   placeholder="아이 반응, 부작용, 다음 진료 메모 등을 자유롭게 적어주세요"
                   value={memos[selected.id] || ""}
-                  onChange={e => setMemos(prev => ({ ...prev, [selected.id]: e.target.value }))}
+                  onChange={e => saveMemos({ ...memos, [selected.id]: e.target.value })}
                   style={{
                     width:"100%", minHeight:90, border:"1.5px solid #E5E5EA",
                     borderRadius:10, padding:"10px 12px", fontSize:13,
@@ -939,7 +988,7 @@ export default function MedBagApp() {
                   </svg>
                 </button>
                 <span style={{ color:"white", fontSize:15, fontWeight:700 }}>아이 정보 수정</span>
-                <button onClick={() => { setChildProfile(profileDraft); setScreen("child"); }} style={{
+                <button onClick={() => { saveChildProfile(profileDraft); setScreen("child"); }} style={{
                   background:"#1A1A2E", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:10,
                   padding:"6px 14px", color:"white", fontSize:13, fontWeight:700, cursor:"pointer", flexShrink:0,
                 }}>저장</button>
@@ -1148,7 +1197,7 @@ export default function MedBagApp() {
               </div>
 
               {/* 저장 버튼 */}
-              <button onClick={() => { setChildProfile(profileDraft); setScreen("child"); }} style={{
+              <button onClick={() => { saveChildProfile(profileDraft); setScreen("child"); }} style={{
                 background:"#1A1A2E", border:"none",
                 borderRadius:14, padding:"16px", color:"white", fontSize:15,
                 fontWeight:700, cursor:"pointer", marginTop:4,
@@ -1162,7 +1211,7 @@ export default function MedBagApp() {
       {screen === "scan" && (
         <ScanScreen
           onCancel={() => { setScreen("home"); setScanStep(0); setNewRx(null); }}
-          onSave={(rx) => { setPrescriptions([rx, ...prescriptions]); setScreen("home"); }}
+          onSave={(rx) => { savePrescriptions([rx, ...prescriptions]); setScreen("home"); }}
           CAT_COLOR={CAT_COLOR}
           FORM_ICON={FORM_ICON}
           MedBadge={MedBadge}
