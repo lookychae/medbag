@@ -801,8 +801,8 @@ export default function MedBagApp() {
               background:"linear-gradient(135deg,#1A1A2E,#2D2D5E)",
               padding:"52px 22px 24px", position:"relative", overflow:"hidden",
             }}>
-              <div style={{ position:"absolute", top:-40, right:-40, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }}/>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+              <div style={{ position:"absolute", top:-40, right:-40, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.03)", zIndex:0 }}/>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", position:"relative", zIndex:1 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:14 }}>
                   <div style={{
                     width:64, height:64, borderRadius:20,
@@ -816,9 +816,12 @@ export default function MedBagApp() {
                   </div>
                 </div>
                 <button onClick={() => {
+                  console.log("수정 버튼 클릭됨");
                   const draft = JSON.parse(JSON.stringify(childProfile));
+                  console.log("draft:", draft);
                   setProfileDraft(draft);
                   setScreen("child-edit");
+                  console.log("screen 변경 완료");
                 }} style={{
                   background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.2)",
                   borderRadius:10, padding:"6px 14px", color:"white", fontSize:12, fontWeight:600, cursor:"pointer",
