@@ -1233,4 +1233,23 @@ export default function MedBagApp() {
             {icon:"🧒", label:"아이 정보", id:"child"},
           ].map(tab=>(
             <button key={tab.id} onClick={()=>setScreen(tab.id)} style={{
-              background:"none", bo
+              background:"none", border:"none", cursor:"pointer",
+              display:"flex", flexDirection:"column", alignItems:"center", gap:2,
+              opacity:screen===tab.id?1:0.28, flex:1,
+            }}>
+              <span style={{fontSize:22}}>{tab.icon}</span>
+              <span style={{fontSize:11,fontWeight:700,color:"#1C1C1E",letterSpacing:0.2}}>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        input::placeholder { color:rgba(255,255,255,0.35); }
+      `}</style>
+    </div>
+  );
+}
