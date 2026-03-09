@@ -815,7 +815,11 @@ export default function MedBagApp() {
                     <div style={{ color:"rgba(255,255,255,0.4)", fontSize:11, marginTop:2 }}>{cp.birth}</div>
                   </div>
                 </div>
-                <button onClick={() => { setProfileDraft({...childProfile}); setScreen("child-edit"); }} style={{
+                <button onClick={() => {
+                  const draft = JSON.parse(JSON.stringify(childProfile));
+                  setProfileDraft(draft);
+                  setScreen("child-edit");
+                }} style={{
                   background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.2)",
                   borderRadius:10, padding:"6px 14px", color:"white", fontSize:12, fontWeight:600, cursor:"pointer",
                 }}>수정</button>
@@ -898,7 +902,8 @@ export default function MedBagApp() {
       })()}
 
       {/* ── 아이 정보 수정 화면 ── */}
-      {screen === "child-edit" && profileDraft && (() => {
+      {screen === "child-edit" && (() => {
+        if (!profileDraft) { setProfileDraft(JSON.parse(JSON.stringify(childProfile))); return null; }
         const fields = [
           { label:"이름", key:"name", type:"text", placeholder:"홍길동" },
           { label:"생년월일", key:"birth", type:"date" },
@@ -1018,6 +1023,79 @@ export default function MedBagApp() {
                     color:"#1C1C1E", background:"transparent",
                   }}
                 />
+              </div>
+
+              {/* 성장 기록 수정 */}
+              <div style={{ background:"white", borderRadius:14, padding:"16px", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, marginBottom:14 }}>📈 성장 기록</div>
+                <div style={{ display:"flex", gap:12 }}>
+                  {/* 키 */}
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#3B82F6", marginBottom:8 }}>📏 키 (cm)</div>
+                    {(profileDraft.heightLog||[]).map((log, i) => (
+                      <div key={i} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                        <input
+                          type="month"
+                          value={log.date.slice(0,7)}
+                          onChange={e => {
+                            const logs = [...profileDraft.heightLog];
+                            logs[i] = { ...logs[i], date: e.target.value+"-01" };
+                            setProfileDraft(p=>({...p, heightLog:logs}));
+                          }}
+                          style={{ flex:1, border:"1px solid #E5E5EA", borderRadius:8, padding:"5px 6px", fontSize:11, outline:"none", minWidth:0 }}
+                        />
+                        <input
+                          type="number"
+                          value={log.value}
+                          onChange={e => {
+                            const logs = [...profileDraft.heightLog];
+                            logs[i] = { ...logs[i], value: parseFloat(e.target.value)||0 };
+                            setProfileDraft(p=>({...p, heightLog:logs}));
+                          }}
+                          style={{ width:48, border:"1px solid #E5E5EA", borderRadius:8, padding:"5px 6px", fontSize:12, fontWeight:700, outline:"none", textAlign:"center" }}
+                        />
+                        <button onClick={() => setProfileDraft(p=>({...p, heightLog:p.heightLog.filter((_,j)=>j!==i)}))}
+                          style={{ background:"#FFE5E5", border:"none", borderRadius:6, width:26, height:26, cursor:"pointer", fontSize:13, color:"#EF4444", flexShrink:0 }}>×</button>
+                      </div>
+                    ))}
+                    <button onClick={() => setProfileDraft(p=>({...p, heightLog:[...(p.heightLog||[]), { date:new Date().toISOString().slice(0,7)+"-01", value:0 }]}))}
+                      style={{ width:"100%", border:"1.5px dashed #3B82F6", borderRadius:8, padding:"6px", fontSize:12, color:"#3B82F6", background:"transparent", cursor:"pointer", fontWeight:600 }}>+ 추가</button>
+                  </div>
+                  <div style={{ width:1, background:"#F2F2F7" }}/>
+                  {/* 몸무게 */}
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#10B981", marginBottom:8 }}>⚖️ 몸무게 (kg)</div>
+                    {(profileDraft.weightLog||[]).map((log, i) => (
+                      <div key={i} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                        <input
+                          type="month"
+                          value={log.date.slice(0,7)}
+                          onChange={e => {
+                            const logs = [...profileDraft.weightLog];
+                            logs[i] = { ...logs[i], date: e.target.value+"-01" };
+                            setProfileDraft(p=>({...p, weightLog:logs}));
+                          }}
+                          style={{ flex:1, border:"1px solid #E5E5EA", borderRadius:8, padding:"5px 6px", fontSize:11, outline:"none", minWidth:0 }}
+                        />
+                        <input
+                          type="number"
+                          value={log.value}
+                          step="0.1"
+                          onChange={e => {
+                            const logs = [...profileDraft.weightLog];
+                            logs[i] = { ...logs[i], value: parseFloat(e.target.value)||0 };
+                            setProfileDraft(p=>({...p, weightLog:logs}));
+                          }}
+                          style={{ width:48, border:"1px solid #E5E5EA", borderRadius:8, padding:"5px 6px", fontSize:12, fontWeight:700, outline:"none", textAlign:"center" }}
+                        />
+                        <button onClick={() => setProfileDraft(p=>({...p, weightLog:p.weightLog.filter((_,j)=>j!==i)}))}
+                          style={{ background:"#FFE5E5", border:"none", borderRadius:6, width:26, height:26, cursor:"pointer", fontSize:13, color:"#EF4444", flexShrink:0 }}>×</button>
+                      </div>
+                    ))}
+                    <button onClick={() => setProfileDraft(p=>({...p, weightLog:[...(p.weightLog||[]), { date:new Date().toISOString().slice(0,7)+"-01", value:0 }]}))}
+                      style={{ width:"100%", border:"1.5px dashed #10B981", borderRadius:8, padding:"6px", fontSize:12, color:"#10B981", background:"transparent", cursor:"pointer", fontWeight:600 }}>+ 추가</button>
+                  </div>
+                </div>
               </div>
 
               {/* 특이사항 */}
