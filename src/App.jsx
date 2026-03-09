@@ -618,16 +618,25 @@ export default function MedBagApp() {
       {screen === "detail" && selected && (
         <div style={{ paddingBottom: 40 }}>
           <div style={{
-            background: selected.accent, padding: "52px 22px 16px",
+            background: selected.accent, padding: "54px 22px 16px",
             position: "relative", overflow: "hidden",
           }}>
             <div style={{ position:"absolute", top:-30, right:-30, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.08)" }} />
-            <button onClick={() => setScreen("home")} style={{
-              background:"rgba(255,255,255,0.2)", border:"none", borderRadius:10,
-              padding:"5px 12px", color:"white", fontSize:12, cursor:"pointer", marginBottom:8,
-            }}>← 목록</button>
 
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+            {/* 뒤로가기 아이콘 */}
+            <button onClick={() => setScreen("home")} style={{
+              position:"absolute", top:12, left:16,
+              background:"rgba(255,255,255,0.2)", border:"none", borderRadius:"50%",
+              width:40, height:40,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              cursor:"pointer", padding:0,
+            }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:16 }}>
               <div>
                 <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginBottom:1 }}>{selected.date}</div>
                 <div style={{ color:"white", fontSize:18, fontWeight:800, letterSpacing:-0.5 }}>{selected.hospital}</div>
@@ -903,12 +912,17 @@ export default function MedBagApp() {
         return (
           <div style={{ background:"#F2F2F7", minHeight:"100vh", paddingBottom:40 }}>
             {/* 헤더 */}
-            <div style={{ background:"linear-gradient(135deg,#1A1A2E,#2D2D5E)", padding:"52px 22px 20px" }}>
+            <div style={{ background:"linear-gradient(135deg,#1A1A2E,#2D2D5E)", padding:"52px 22px 20px", position:"relative" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                 <button onClick={() => setScreen("child")} style={{
-                  background:"rgba(255,255,255,0.12)", border:"none", borderRadius:10,
-                  padding:"7px 14px", color:"white", fontSize:13, cursor:"pointer",
-                }}>← 취소</button>
+                  background:"rgba(255,255,255,0.12)", border:"none", borderRadius:"50%",
+                  width:40, height:40, display:"flex", alignItems:"center", justifyContent:"center",
+                  cursor:"pointer", padding:0,
+                }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
                 <span style={{ color:"white", fontSize:16, fontWeight:700 }}>아이 정보 수정</span>
                 <button onClick={() => { setChildProfile(profileDraft); setScreen("child"); }} style={{
                   background:"#64C8FF", border:"none", borderRadius:10,
@@ -1219,23 +1233,4 @@ export default function MedBagApp() {
             {icon:"🧒", label:"아이 정보", id:"child"},
           ].map(tab=>(
             <button key={tab.id} onClick={()=>setScreen(tab.id)} style={{
-              background:"none", border:"none", cursor:"pointer",
-              display:"flex", flexDirection:"column", alignItems:"center", gap:2,
-              opacity:screen===tab.id?1:0.28, flex:1,
-            }}>
-              <span style={{fontSize:22}}>{tab.icon}</span>
-              <span style={{fontSize:11,fontWeight:700,color:"#1C1C1E",letterSpacing:0.2}}>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      <style>{`
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        input::placeholder { color:rgba(255,255,255,0.35); }
-      `}</style>
-    </div>
-  );
-}
+              background:"none", bo
