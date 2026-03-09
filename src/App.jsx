@@ -563,7 +563,7 @@ export default function MedBagApp() {
                         </div>
                         <span style={{ fontSize:13, color:"#8E8E93" }}>{rx.hospital}</span>
                       </div>
-                      <span style={{ color:"#C7C7CC", fontSize:14 }}>›</span>
+                      <span style={{ color:"#C7C7CC", fontSize:18 }}>›</span>
                     </div>
 
                     {/* Symptom row */}
@@ -1061,7 +1061,7 @@ export default function MedBagApp() {
       {screen === "meds" && (
         <div style={{ paddingBottom: 110 }}>
           <div style={{ background:"#1A1A2E", padding:"52px 22px 20px" }}>
-            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:13, marginBottom:3 }}>처방 약 모아보기 💊</div>
+            <div style={{ color:"rgba(255,255,255,0.6)", fontSize:15, marginBottom:4 }}>처방 약 모아보기 💊</div>
             <div style={{ color:"white", fontSize:15, fontWeight:600 }}>
               총 {prescriptions.reduce((a,p)=>a+p.medicines.length,0)}종의 약이 있어요
             </div>
@@ -1093,7 +1093,7 @@ export default function MedBagApp() {
                     padding:"14px 2px 8px",
                   }}>
                     <div style={{ width:8, height:8, borderRadius:"50%", background:CAT_COLOR[cat]||"#ccc" }} />
-                    <span style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8 }}>{cat}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:"#8E8E93", letterSpacing:0.8 }}>{cat}</span>
                   </div>
                   {items.map((m, i) => (
                     <div key={i} style={{
@@ -1104,22 +1104,22 @@ export default function MedBagApp() {
                       <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
                         <span style={{ fontSize:15 }}>{FORM_ICON[m.form]||"💊"}</span>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontSize:13, fontWeight:700, color:"#1C1C1E" }}>{m.name}</div>
-                          {m.comment && <div style={{ fontSize:10, color:"#8E8E93", marginTop:1 }}>{m.comment}</div>}
+                          <div style={{ fontSize:15, fontWeight:700, color:"#1C1C1E" }}>{m.name}</div>
+                          {m.comment && <div style={{ fontSize:12, color:"#8E8E93", marginTop:2 }}>{m.comment}</div>}
                         </div>
                         <MedBadge dosage={m.dosage} color={CAT_COLOR[m.category]||"#888"} form={m.form} small />
                       </div>
                       <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                         {m.hospitals.map((h,j) => (
                           <span key={j} style={{
-                            fontSize:10, color:"#555", background:"#F2F2F7",
-                            borderRadius:6, padding:"2px 8px", fontWeight:500,
+                            fontSize:12, color:"#555", background:"#F2F2F7",
+                            borderRadius:6, padding:"3px 10px", fontWeight:500,
                           }}>🏥 {h}</span>
                         ))}
                         {m.count > 1 && (
                           <span style={{
-                            fontSize:10, color:CAT_COLOR[m.category], background:CAT_COLOR[m.category]+"15",
-                            borderRadius:6, padding:"2px 8px", fontWeight:700,
+                            fontSize:12, color:CAT_COLOR[m.category], background:CAT_COLOR[m.category]+"15",
+                            borderRadius:6, padding:"3px 10px", fontWeight:700,
                           }}>{m.count}회 처방</span>
                         )}
                       </div>
@@ -1136,7 +1136,7 @@ export default function MedBagApp() {
       {screen === "hospitals" && (
         <div style={{ paddingBottom: 110 }}>
           <div style={{ background:"#1A1A2E", padding:"52px 22px 20px" }}>
-            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:13, marginBottom:3 }}>병원 방문 이력 🏥</div>
+            <div style={{ color:"rgba(255,255,255,0.6)", fontSize:15, marginBottom:4 }}>병원 방문 이력 🏥</div>
             <div style={{ color:"white", fontSize:15, fontWeight:600 }}>
               총 {[...new Set(prescriptions.map(p=>p.hospital))].length}곳의 병원을 방문했어요
             </div>
@@ -1152,7 +1152,7 @@ export default function MedBagApp() {
               }, {});
               return Object.keys(byMonth).sort().reverse().map(month => (
                 <div key={month}>
-                  <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, padding:"14px 2px 8px" }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, padding:"14px 2px 8px" }}>
                     {month.replace("-","년 ")}월
                   </div>
                   {byMonth[month].map((rx, i) => (
@@ -1173,7 +1173,7 @@ export default function MedBagApp() {
                         fontSize:18,
                       }}>🏥</div>
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:14, fontWeight:700, color:"#1C1C1E" }}>{rx.hospital}</div>
+                        <div style={{ fontSize:16, fontWeight:700, color:"#1C1C1E" }}>{rx.hospital}</div>
                         <div style={{ fontSize:11, color:"#8E8E93", marginTop:2 }}>
                           {rx.date.slice(5).replace("-","/")} · {rx.symptom}
                         </div>
@@ -1181,7 +1181,7 @@ export default function MedBagApp() {
                           {rx.doctor} · 약 {rx.medicines.length}종
                         </div>
                       </div>
-                      <span style={{ color:"#C7C7CC", fontSize:14 }}>›</span>
+                      <span style={{ color:"#C7C7CC", fontSize:18 }}>›</span>
                     </div>
                   ))}
                 </div>
