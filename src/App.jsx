@@ -618,36 +618,36 @@ export default function MedBagApp() {
       {screen === "detail" && selected && (
         <div style={{ paddingBottom: 40 }}>
           <div style={{
-            background: selected.accent, padding: "52px 22px 22px",
+            background: selected.accent, padding: "52px 22px 16px",
             position: "relative", overflow: "hidden",
           }}>
             <div style={{ position:"absolute", top:-30, right:-30, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.08)" }} />
             <button onClick={() => setScreen("home")} style={{
               background:"rgba(255,255,255,0.2)", border:"none", borderRadius:10,
-              padding:"7px 14px", color:"white", fontSize:13, cursor:"pointer", marginBottom:16,
+              padding:"6px 12px", color:"white", fontSize:13, cursor:"pointer", marginBottom:10,
             }}>← 목록</button>
 
-            <div style={{ color:"rgba(255,255,255,0.7)", fontSize:14, marginBottom:4 }}>{selected.date}</div>
-            <div style={{ color:"white", fontSize:26, fontWeight:800, letterSpacing:-1 }}>{selected.hospital}</div>
-            <div style={{ color:"rgba(255,255,255,0.75)", fontSize:15, marginTop:4 }}>{selected.doctor}</div>
+            <div style={{ color:"rgba(255,255,255,0.7)", fontSize:13, marginBottom:2 }}>{selected.date}</div>
+            <div style={{ color:"white", fontSize:20, fontWeight:800, letterSpacing:-0.8 }}>{selected.hospital}</div>
+            <div style={{ color:"rgba(255,255,255,0.75)", fontSize:13, marginTop:2 }}>{selected.doctor}</div>
 
-            <div style={{ display:"flex", gap:8, marginTop:12, flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap:8, marginTop:10, flexWrap:"wrap" }}>
               <div style={{
-                background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"5px 12px",
-                fontSize:13, color:"white", fontWeight:600,
+                background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"4px 10px",
+                fontSize:12, color:"white", fontWeight:600,
               }}>🩺 {selected.symptom}</div>
               {selected.child && (
                 <div style={{
-                  background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"5px 12px",
-                  fontSize:13, color:"white", fontWeight:600,
+                  background:"rgba(255,255,255,0.15)", borderRadius:10, padding:"4px 10px",
+                  fontSize:12, color:"white", fontWeight:600,
                 }}>👶 {selected.child}</div>
               )}
             </div>
 
             {selected.memo && (
               <div style={{
-                marginTop:12, background:"rgba(255,255,255,0.12)", borderRadius:10,
-                padding:"10px 14px", fontSize:13, color:"rgba(255,255,255,0.9)", lineHeight:1.6,
+                marginTop:8, background:"rgba(255,255,255,0.12)", borderRadius:10,
+                padding:"8px 12px", fontSize:12, color:"rgba(255,255,255,0.9)", lineHeight:1.6,
               }}>📝 {selected.memo}</div>
             )}
           </div>
