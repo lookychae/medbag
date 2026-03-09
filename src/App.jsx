@@ -563,7 +563,14 @@ export default function MedBagApp() {
                         </div>
                         <span style={{ fontSize:13, color:"#8E8E93" }}>{rx.hospital}</span>
                       </div>
-                      <span style={{ color:"#C7C7CC", fontSize:18 }}>›</span>
+                      <div style={{
+                        width:32, height:32, borderRadius:"50%", background:"#F2F2F7",
+                        display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </div>
                     </div>
 
                     {/* Symptom row */}
@@ -985,30 +992,51 @@ export default function MedBagApp() {
                 ))}
               </div>
 
-              {/* 신체 정보 */}
+              {/* 신체 정보 — 변경 시 성장기록에 자동 추가 */}
               <div style={{ background:"white", borderRadius:14, padding:"16px", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, marginBottom:14 }}>신체 정보</div>
+                <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, marginBottom:4 }}>신체 정보</div>
+                <div style={{ fontSize:11, color:"#C7C7CC", marginBottom:14 }}>변경하면 오늘 날짜로 성장 기록에 자동 추가돼요</div>
                 <div style={{ display:"flex", gap:16 }}>
-                  {bodyFields.map((field, i) => (
-                    <div key={field.key} style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
-                      <span style={{ fontSize:11, color:"#8E8E93" }}>{field.label}</span>
-                      <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
-                        <input
-                          type="number"
-                          value={profileDraft[field.key] || ""}
-                          placeholder={field.placeholder}
-                          step={field.step || "1"}
-                          onChange={e => setProfileDraft(p=>({...p, [field.key]: parseFloat(e.target.value)||0}))}
-                          style={{
-                            flex:1, border:"none", borderBottom:"1.5px solid #E5E5EA",
-                            padding:"6px 0", fontSize:22, fontWeight:800, outline:"none",
-                            color:"#1C1C1E", background:"transparent", width:0,
-                          }}
-                        />
-                        <span style={{ fontSize:13, color:"#8E8E93", fontWeight:600 }}>{field.unit}</span>
+                  {[
+                    { label:"키", key:"height", unit:"cm", placeholder:"110", logKey:"heightLog", step:"1" },
+                    { label:"몸무게", key:"weight", unit:"kg", placeholder:"18.5", logKey:"weightLog", step:"0.1" },
+                  ].map((field, i) => {
+                    const latestLog = (profileDraft[field.logKey]||[]).slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+                    const latestVal = latestLog ? latestLog.value : (profileDraft[field.key] || "");
+                    return (
+                      <div key={field.key} style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
+                        <span style={{ fontSize:11, color:"#8E8E93" }}>{field.label}</span>
+                        <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
+                          <input
+                            type="number"
+                            value={profileDraft[field.key] || ""}
+                            placeholder={field.placeholder}
+                            step={field.step}
+                            onChange={e => {
+                              const val = parseFloat(e.target.value)||0;
+                              const today = new Date().toISOString().slice(0,7)+"-01";
+                              const logs = [...(profileDraft[field.logKey]||[])];
+                              const todayIdx = logs.findIndex(l => l.date.slice(0,7) === today.slice(0,7));
+                              if (todayIdx >= 0) logs[todayIdx] = { ...logs[todayIdx], value: val };
+                              else logs.unshift({ date: today, value: val });
+                              setProfileDraft(p=>({ ...p, [field.key]: val, [field.logKey]: logs }));
+                            }}
+                            style={{
+                              flex:1, border:"none", borderBottom:"1.5px solid #E5E5EA",
+                              padding:"6px 0", fontSize:22, fontWeight:800, outline:"none",
+                              color:"#1C1C1E", background:"transparent", width:0,
+                            }}
+                          />
+                          <span style={{ fontSize:13, color:"#8E8E93", fontWeight:600 }}>{field.unit}</span>
+                        </div>
+                        {latestLog && (
+                          <div style={{ fontSize:11, color:"#C7C7CC" }}>
+                            최근 {latestLog.date.slice(0,7)} · {latestLog.value}{field.unit}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1245,27 +1273,34 @@ export default function MedBagApp() {
                       onClick={() => { setSelected(rx); setMemoEditing(false); setScreen("detail"); }}
                       style={{
                         background:"white", borderRadius:14, marginBottom:8,
-                        padding:"13px 16px", boxShadow:"0 1px 6px rgba(0,0,0,0.06)",
-                        cursor:"pointer", borderLeft:`3px solid ${rx.accent}`,
-                        display:"flex", alignItems:"center", gap:12,
+                        padding:"16px 16px", boxShadow:"0 1px 6px rgba(0,0,0,0.06)",
+                        cursor:"pointer", borderLeft:`4px solid ${rx.accent}`,
+                        display:"flex", alignItems:"center", gap:14,
                       }}
                     >
                       <div style={{
-                        width:40, height:40, borderRadius:12, flexShrink:0,
+                        width:48, height:48, borderRadius:14, flexShrink:0,
                         background:rx.accent+"15",
                         display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:18,
+                        fontSize:22,
                       }}>🏥</div>
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:16, fontWeight:700, color:"#1C1C1E" }}>{rx.hospital}</div>
-                        <div style={{ fontSize:11, color:"#8E8E93", marginTop:2 }}>
+                        <div style={{ fontSize:17, fontWeight:700, color:"#1C1C1E" }}>{rx.hospital}</div>
+                        <div style={{ fontSize:13, color:"#8E8E93", marginTop:3 }}>
                           {rx.date.slice(5).replace("-","/")} · {rx.symptom}
                         </div>
-                        <div style={{ fontSize:11, color:"#8E8E93", marginTop:1 }}>
+                        <div style={{ fontSize:13, color:"#8E8E93", marginTop:2 }}>
                           {rx.doctor} · 약 {rx.medicines.length}종
                         </div>
                       </div>
-                      <span style={{ color:"#C7C7CC", fontSize:18 }}>›</span>
+                      <div style={{
+                        width:32, height:32, borderRadius:"50%", background:"#F2F2F7",
+                        display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </div>
                     </div>
                   ))}
                 </div>
