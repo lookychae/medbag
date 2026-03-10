@@ -1141,7 +1141,7 @@ export default function MedBagApp() {
 
       {screen === "scan" && (
         <ScanScreen
-          onCancel={() => { setScreen("home"); setScanStep(0); setNewRx(null); }}
+          onCancel={() => setScreen("home")}
           onSave={(rx) => { savePrescriptions([rx, ...prescriptions]); setScreen("home"); }}
           CAT_COLOR={CAT_COLOR}
           FORM_ICON={FORM_ICON}
