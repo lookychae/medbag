@@ -355,7 +355,6 @@ export default function MedBagApp() {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [memoEditing, setMemoEditing] = useState(false);
-  const [editingProfile, setEditingProfile] = useState(false);
   const [profileDraft, setProfileDraft] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -437,11 +436,6 @@ export default function MedBagApp() {
     acc[key].push(p);
     return acc;
   }, {});
-
-  const confirmAdd = (rx) => {
-    savePrescriptions([rx, ...prescriptions]);
-    setScreen("home");
-  };
 
   return (
     <div style={{
@@ -803,12 +797,8 @@ export default function MedBagApp() {
                   </div>
                 </div>
                 <button onClick={() => {
-                  console.log("수정 버튼 클릭됨");
-                  const draft = JSON.parse(JSON.stringify(childProfile));
-                  console.log("draft:", draft);
-                  setProfileDraft(draft);
+                  setProfileDraft(JSON.parse(JSON.stringify(childProfile)));
                   setScreen("child-edit");
-                  console.log("screen 변경 완료");
                 }} style={{
                   background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.2)",
                   borderRadius:10, padding:"6px 14px", color:"white", fontSize:12, fontWeight:600, cursor:"pointer",
@@ -899,10 +889,6 @@ export default function MedBagApp() {
           { label:"생년월일", key:"birth", type:"date" },
           { label:"성별", key:"gender", type:"select", options:["남","여"] },
           { label:"혈액형", key:"bloodType", type:"text", placeholder:"A+, B-, O+ 등" },
-        ];
-        const bodyFields = [
-          { label:"키", key:"height", type:"number", unit:"cm", placeholder:"110" },
-          { label:"몸무게", key:"weight", type:"number", unit:"kg", placeholder:"18.5", step:"0.1" },
         ];
         return (
           <div style={{ background:"#F2F2F7", minHeight:"100vh", paddingBottom:40 }}>
@@ -1318,7 +1304,7 @@ export default function MedBagApp() {
 
           {/* FAB */}
           <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center", zIndex:101, position:"relative" }}>
-            <button onClick={()=>{ console.log("스캔 클릭"); setScreen("scan"); }} style={{
+            <button onClick={()=> setScreen("scan")} style={{
               width:56, height:56, marginTop:-26,
               background:"linear-gradient(135deg,#1A1A2E,#4A4A8E)",
               border:"3px solid white", borderRadius:"50%",
