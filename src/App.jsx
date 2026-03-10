@@ -83,8 +83,6 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
-  const fileRef = useState(null);
-  const inputRef = { current: null };
 
   const ACCENT_COLORS = ["#F97316","#EF4444","#3B82F6","#10B981","#8B5CF6","#6366F1"];
 
@@ -355,9 +353,6 @@ function MedBadge({ dosage, color, form, small = false }) {
 export default function MedBagApp() {
   const [screen, setScreen] = useState("home");
   const [selected, setSelected] = useState(null);
-  const [scanStep, setScanStep] = useState(0);
-  const [scanning, setScanning] = useState(false);
-  const [newRx, setNewRx] = useState(null);
   const [search, setSearch] = useState("");
   const [memoEditing, setMemoEditing] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
@@ -443,36 +438,8 @@ export default function MedBagApp() {
     return acc;
   }, {});
 
-  const simulateScan = () => {
-    setScanning(true);
-    setScanStep(1);
-    setTimeout(() => setScanStep(2), 1200);
-    setTimeout(() => setScanStep(3), 2400);
-    setTimeout(() => {
-      setScanStep(4);
-      setScanning(false);
-      setNewRx({
-        id: Date.now(),
-        hospital: "미래아동병원",
-        doctor: "최현우 원장",
-        date: new Date().toISOString().slice(0, 10),
-        symptom: "기관지염, 기침",
-        child: "이준서 (5세)",
-        memo: "",
-        accent: "#6366F1",
-        medicines: [
-          { name: "클래리스로마이신시럽", dosage: "5mL", times: "하루 2회", days: 5, category: "항생제", form: "시럽", comment: "냉장 보관 필수" },
-          { name: "에리스로마이신시럽", dosage: "4mL", times: "하루 3회", days: 5, category: "기관지확장제", form: "시럽", comment: "기침 완화" },
-          { name: "정장생균산", dosage: "1포", times: "하루 2회", days: 5, category: "유산균", form: "분말", comment: "항생제 복용 후 30분 뒤" },
-        ],
-      });
-    }, 3600);
-  };
-
-  const confirmAdd = () => {
-    savePrescriptions([newRx, ...prescriptions]);
-    setNewRx(null);
-    setScanStep(0);
+  const confirmAdd = (rx) => {
+    savePrescriptions([rx, ...prescriptions]);
     setScreen("home");
   };
 
