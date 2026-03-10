@@ -680,7 +680,7 @@ export default function MedBagApp() {
                 borderRadius:20, padding:"7px 15px", color:"white",
                 fontSize:13, fontWeight:600, cursor:"pointer",
                 position:"relative", zIndex:10,
-              }}>+ 스캔</button>
+              }}>+ 등록</button>
             </div>
 
             <div style={{ color:"rgba(255,255,255,0.6)", fontSize:15, marginBottom:4 }}>처방전 관리 👶</div>
