@@ -492,10 +492,10 @@ export default function MedBagApp() {
           {/* Dark Header */}
           <div style={{
             background: "#1A1A2E", padding: "52px 22px 22px",
-            position: "relative", overflow: "hidden",
+            position: "relative",
           }}>
-            <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
-            <div style={{ position:"absolute", top:10, right:20, width:90, height:90, borderRadius:"50%", background:"rgba(100,200,255,0.06)" }} />
+            <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.03)", pointerEvents:"none" }} />
+            <div style={{ position:"absolute", top:10, right:20, width:90, height:90, borderRadius:"50%", background:"rgba(100,200,255,0.06)", pointerEvents:"none" }} />
 
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -511,6 +511,7 @@ export default function MedBagApp() {
                 background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)",
                 borderRadius:20, padding:"7px 15px", color:"white",
                 fontSize:13, fontWeight:600, cursor:"pointer",
+                position:"relative", zIndex:10,
               }}>+ 스캔</button>
             </div>
 
