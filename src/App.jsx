@@ -212,8 +212,20 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
               }}
             >✏️ 직접 입력하기</button>
           </div>
-          <div style={{ color:"rgba(255,255,255,0.2)", fontSize:11, marginTop:16, textAlign:"center" }}>
+          <div style={{ color:"rgba(255,255,255,0.2)", fontSize:11, marginTop:10, textAlign:"center" }}>
             AI가 약봉지 내용을 자동으로 읽어드려요
+          </div>
+          <div style={{
+            marginTop:16, width:"100%", maxWidth:280,
+            background:"rgba(100,200,255,0.06)", border:"1px solid rgba(100,200,255,0.2)",
+            borderRadius:12, padding:"11px 14px", textAlign:"center",
+          }}>
+            <div style={{ fontSize:12, color:"rgba(100,200,255,0.9)", fontWeight:700, marginBottom:3 }}>
+              💡 크레딧 없이도 사용할 수 있어요
+            </div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,0.35)", lineHeight:1.6 }}>
+              아래 <b style={{color:"rgba(255,255,255,0.5)"}}>✏️ 직접 입력하기</b>로<br/>처방 내용을 직접 기록해보세요
+            </div>
           </div>
         </div>
       )}
@@ -748,7 +760,7 @@ export default function MedBagApp() {
                     </div>
 
                     {/* Medicine rows — 2줄 구조로 얼라인 고정 */}
-                    <div style={{ padding:"8px 14px 12px" }}>
+                    <div style={{ padding:"8px 14px", paddingBottom: memos[rx.id] ? 8 : 12 }}>
                       {rx.medicines.map((m, i) => (
                         <div key={i} style={{
                           paddingTop: i===0?0:8, marginTop: i===0?0:8,
@@ -782,6 +794,27 @@ export default function MedBagApp() {
                         </div>
                       ))}
                     </div>
+
+                    {/* 메모 미리보기 */}
+                    {memos[rx.id] && (
+                      <div style={{
+                        margin:"0 14px 12px",
+                        background:"#FFFBEB",
+                        border:"1px solid #FDE68A",
+                        borderRadius:10,
+                        padding:"8px 12px",
+                        display:"flex", alignItems:"flex-start", gap:6,
+                      }}>
+                        <span style={{ fontSize:13, flexShrink:0, marginTop:1 }}>📝</span>
+                        <span style={{
+                          fontSize:12, color:"#92400E", lineHeight:1.5,
+                          overflow:"hidden", textOverflow:"ellipsis",
+                          display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical",
+                        }}>
+                          {memos[rx.id]}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -816,7 +849,13 @@ export default function MedBagApp() {
               <div>
                 <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginBottom:1 }}>{selected.date}</div>
                 <div style={{ color:"white", fontSize:18, fontWeight:800, letterSpacing:-0.5 }}>{selected.hospital}</div>
-                <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginTop:1 }}>{selected.doctor}</div>
+                <div style={{ color:"rgba(255,255,255,0.7)", fontSize:12, marginTop:1 }}>
+                  {selected.doctor
+                    ? (selected.doctor.endsWith("원장") || selected.doctor.endsWith("의사") || selected.doctor.endsWith("선생님")
+                      ? selected.doctor
+                      : `${selected.doctor} 의사`)
+                    : ""}
+                </div>
               </div>
             </div>
 
