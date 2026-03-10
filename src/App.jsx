@@ -561,6 +561,7 @@ export default function MedBagApp() {
   const [screen, setScreen] = useState("home");
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
+  const [showGrowthChart, setShowGrowthChart] = useState(false);
   const [memoEditing, setMemoEditing] = useState(false);
   const [profileDraft, setProfileDraft] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -653,6 +654,133 @@ export default function MedBagApp() {
       margin: "0 auto",
       position: "relative",
     }}>
+
+  return (
+    <div style={{
+      fontFamily: "'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+      background: "#F2F2F7",
+      minHeight: "100vh",
+      maxWidth: 390,
+      margin: "0 auto",
+      position: "relative",
+    }}>
+
+      {/* ── 성장 그래프 팝업 모달 ── */}
+      {showGrowthChart && (() => {
+        const cp = childProfile;
+        const hLogs = [...(cp.heightLog||[])].sort((a,b)=>a.date.localeCompare(b.date));
+        const wLogs = [...(cp.weightLog||[])].sort((a,b)=>a.date.localeCompare(b.date));
+
+        const ChartLine = ({ logs, color, unit, label, icon }) => {
+          if (!logs.length) return <div style={{ color:"#8E8E93", fontSize:12, textAlign:"center", padding:20 }}>기록 없음</div>;
+          const vals = logs.map(l=>l.value);
+          const min = Math.min(...vals);
+          const max = Math.max(...vals);
+          const range = max - min || 1;
+          const W = 280, H = 120, pad = 20;
+          const x = (i) => pad + (i / Math.max(logs.length-1,1)) * (W - pad*2);
+          const y = (v) => H - pad - ((v - min) / range) * (H - pad*2);
+          const points = logs.map((l,i) => `${x(i)},${y(l.value)}`).join(" ");
+          const areaPoints = `${x(0)},${H-pad} ${points} ${x(logs.length-1)},${H-pad}`;
+
+          return (
+            <div style={{ marginBottom:24 }}>
+              <div style={{ fontSize:12, fontWeight:700, color, marginBottom:8, display:"flex", alignItems:"center", gap:5 }}>
+                <span>{icon}</span>{label}
+              </div>
+              <svg width={W} height={H} style={{ overflow:"visible" }}>
+                {/* 그리드 라인 */}
+                {[0,0.25,0.5,0.75,1].map((t,i) => {
+                  const yy = H - pad - t*(H-pad*2);
+                  const val = (min + t*range).toFixed(t===Math.floor(t)?0:1);
+                  return (
+                    <g key={i}>
+                      <line x1={pad} y1={yy} x2={W-pad} y2={yy} stroke="#F2F2F7" strokeWidth="1"/>
+                      <text x={pad-4} y={yy+4} textAnchor="end" fontSize="9" fill="#C7C7CC">{val}</text>
+                    </g>
+                  );
+                })}
+                {/* 면적 */}
+                <polygon points={areaPoints} fill={color} fillOpacity="0.08"/>
+                {/* 선 */}
+                <polyline points={points} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* 점 + 값 */}
+                {logs.map((l,i) => (
+                  <g key={i}>
+                    <circle cx={x(i)} cy={y(l.value)} r="4" fill={color} stroke="white" strokeWidth="2"/>
+                    <text x={x(i)} y={y(l.value)-10} textAnchor="middle" fontSize="9" fill={color} fontWeight="700">
+                      {l.value}{unit}
+                    </text>
+                  </g>
+                ))}
+                {/* x축 날짜 */}
+                {logs.map((l,i) => (
+                  <text key={i} x={x(i)} y={H-2} textAnchor="middle" fontSize="8" fill="#C7C7CC">
+                    {l.date.slice(2,7).replace("-","/")}
+                  </text>
+                ))}
+              </svg>
+            </div>
+          );
+        };
+
+        return (
+          <div style={{
+            position:"fixed", inset:0, zIndex:9999,
+            background:"rgba(0,0,0,0.5)", backdropFilter:"blur(4px)",
+            display:"flex", alignItems:"flex-end", justifyContent:"center",
+          }} onClick={() => setShowGrowthChart(false)}>
+            <div onClick={e=>e.stopPropagation()} style={{
+              background:"white", borderRadius:"24px 24px 0 0",
+              width:"100%", maxWidth:390, maxHeight:"85vh",
+              overflowY:"auto", padding:"24px 24px 40px",
+            }}>
+              {/* 핸들 + 헤더 */}
+              <div style={{ width:40, height:4, background:"#E5E5EA", borderRadius:2, margin:"0 auto 20px" }}/>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24 }}>
+                <div>
+                  <div style={{ fontSize:17, fontWeight:800, color:"#1C1C1E" }}>📈 성장 그래프</div>
+                  <div style={{ fontSize:12, color:"#8E8E93", marginTop:2 }}>{cp.name} · 성장 추이</div>
+                </div>
+                <button onClick={() => setShowGrowthChart(false)} style={{
+                  background:"#F2F2F7", border:"none", borderRadius:"50%",
+                  width:32, height:32, fontSize:16, cursor:"pointer",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>✕</button>
+              </div>
+
+              {/* 최신 요약 */}
+              <div style={{ display:"flex", gap:10, marginBottom:24 }}>
+                {[
+                  { label:"현재 키", value: hLogs.at(-1)?.value, unit:"cm", color:"#3B82F6", icon:"📏",
+                    diff: hLogs.length>1 ? (hLogs.at(-1).value - hLogs.at(-2).value).toFixed(1) : null },
+                  { label:"현재 몸무게", value: wLogs.at(-1)?.value, unit:"kg", color:"#10B981", icon:"⚖️",
+                    diff: wLogs.length>1 ? (wLogs.at(-1).value - wLogs.at(-2).value).toFixed(1) : null },
+                ].map((s,i) => (
+                  <div key={i} style={{
+                    flex:1, background:s.color+"10", borderRadius:14, padding:"14px",
+                    border:`1px solid ${s.color}22`,
+                  }}>
+                    <div style={{ fontSize:11, color:s.color, fontWeight:700, marginBottom:4 }}>{s.icon} {s.label}</div>
+                    <div style={{ fontSize:22, fontWeight:800, color:"#1C1C1E" }}>
+                      {s.value ?? "-"}<span style={{ fontSize:13, color:"#8E8E93", fontWeight:400 }}> {s.unit}</span>
+                    </div>
+                    {s.diff && (
+                      <div style={{ fontSize:11, color: parseFloat(s.diff)>=0 ? "#10B981":"#EF4444", marginTop:3, fontWeight:600 }}>
+                        {parseFloat(s.diff)>=0 ? "▲":"▼"} {Math.abs(s.diff)}{s.unit} 이전 대비
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* 그래프 */}
+              <ChartLine logs={hLogs} color="#3B82F6" unit="cm" label="키 변화 (cm)" icon="📏"/>
+              <ChartLine logs={wLogs} color="#10B981" unit="kg" label="몸무게 변화 (kg)" icon="⚖️"/>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── HOME ── */}
       {screen === "home" && (
@@ -1076,7 +1204,17 @@ export default function MedBagApp() {
 
               {/* 성장 기록 */}
               <div style={{ background:"white", borderRadius:14, padding:"16px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8, marginBottom:12 }}>📈 성장 기록</div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:"#8E8E93", letterSpacing:0.8 }}>📈 성장 기록</div>
+                  <button onClick={() => setShowGrowthChart(true)} style={{
+                    background:"linear-gradient(135deg,#3B82F6,#8B5CF6)", border:"none",
+                    borderRadius:20, padding:"5px 13px", color:"white",
+                    fontSize:11, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", gap:4,
+                  }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    그래프 보기
+                  </button>
+                </div>
                 <div style={{ display:"flex", gap:10 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:600, color:"#3B82F6", marginBottom:8 }}>📏 키 (cm)</div>
