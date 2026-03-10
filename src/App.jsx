@@ -79,12 +79,19 @@ const SAMPLE_PRESCRIPTIONS = [
 
 // ── 실제 Claude AI 스캔 컴포넌트 ──
 function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
-  const [step, setStep] = useState("idle"); // idle | analyzing | result | error
+  const [step, setStep] = useState("idle"); // idle | analyzing | result | error | manual
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
   const ACCENT_COLORS = ["#F97316","#EF4444","#3B82F6","#10B981","#8B5CF6","#6366F1"];
+
+  // 수동 입력 폼 상태
+  const [manual, setManual] = useState({
+    hospital: "", doctor: "", date: new Date().toISOString().slice(0,10),
+    symptom: "", child: "", memo: "",
+    medicines: [{ name:"", dosage:"", times:"하루 3회", days:3, category:"기타", form:"시럽", comment:"" }],
+  });
 
   const analyzeImage = async (file) => {
     setStep("analyzing");
@@ -197,6 +204,13 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
                 borderRadius:14, padding:"15px", color:"white", fontSize:15, fontWeight:700, cursor:"pointer",
               }}
             >📸 사진 촬영 / 선택</button>
+            <button
+              onClick={() => setStep("manual")}
+              style={{
+                background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.15)",
+                borderRadius:14, padding:"15px", color:"rgba(255,255,255,0.7)", fontSize:15, fontWeight:700, cursor:"pointer",
+              }}
+            >✏️ 직접 입력하기</button>
           </div>
           <div style={{ color:"rgba(255,255,255,0.2)", fontSize:11, marginTop:16, textAlign:"center" }}>
             AI가 약봉지 내용을 자동으로 읽어드려요
@@ -242,6 +256,184 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
             background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)",
             borderRadius:12, padding:"12px 28px", color:"white", fontSize:14, cursor:"pointer",
           }}>다시 시도</button>
+        </div>
+      )}
+
+      {/* MANUAL 입력 */}
+      {step === "manual" && (
+        <div style={{ width:"100%", maxWidth:360, overflowY:"auto", maxHeight:"85vh" }}>
+          <div style={{ textAlign:"center", marginBottom:20 }}>
+            <div style={{ fontSize:32, marginBottom:6 }}>✏️</div>
+            <div style={{ color:"white", fontSize:17, fontWeight:700 }}>처방전 직접 입력</div>
+            <div style={{ color:"rgba(255,255,255,0.4)", fontSize:12, marginTop:4 }}>처방전 내용을 직접 입력해주세요</div>
+          </div>
+
+          {/* 기본 정보 */}
+          <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:16, marginBottom:12, border:"1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:11, fontWeight:700, marginBottom:12, letterSpacing:0.8 }}>기본 정보</div>
+            {[
+              { label:"병원명 *", key:"hospital", placeholder:"서울아동병원" },
+              { label:"의사명", key:"doctor", placeholder:"홍길동 원장" },
+              { label:"증상", key:"symptom", placeholder:"감기, 발열" },
+              { label:"아이 이름", key:"child", placeholder:"이준서 (5세)" },
+            ].map((f,i) => (
+              <div key={f.key} style={{ marginBottom: i < 3 ? 12 : 0 }}>
+                <div style={{ color:"rgba(255,255,255,0.4)", fontSize:11, marginBottom:4 }}>{f.label}</div>
+                <input
+                  type="text"
+                  value={manual[f.key]}
+                  placeholder={f.placeholder}
+                  onChange={e => setManual(p=>({...p, [f.key]: e.target.value}))}
+                  style={{
+                    width:"100%", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:10, padding:"10px 12px", color:"white", fontSize:14, outline:"none",
+                  }}
+                />
+              </div>
+            ))}
+            <div style={{ marginTop:12 }}>
+              <div style={{ color:"rgba(255,255,255,0.4)", fontSize:11, marginBottom:4 }}>처방일 *</div>
+              <input
+                type="date"
+                value={manual.date}
+                onChange={e => setManual(p=>({...p, date: e.target.value}))}
+                style={{
+                  width:"100%", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
+                  borderRadius:10, padding:"10px 12px", color:"white", fontSize:14, outline:"none",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* 약 목록 */}
+          <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:16, marginBottom:12, border:"1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:11, fontWeight:700, marginBottom:12, letterSpacing:0.8 }}>처방 약물</div>
+            {manual.medicines.map((m, mi) => (
+              <div key={mi} style={{
+                background:"rgba(255,255,255,0.04)", borderRadius:12, padding:12, marginBottom:10,
+                border:"1px solid rgba(255,255,255,0.06)",
+              }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                  <span style={{ color:"rgba(255,255,255,0.6)", fontSize:12, fontWeight:700 }}>약 {mi+1}</span>
+                  {manual.medicines.length > 1 && (
+                    <button onClick={() => setManual(p=>({...p, medicines:p.medicines.filter((_,j)=>j!==mi)}))}
+                      style={{ background:"#EF444430", border:"none", borderRadius:6, padding:"3px 8px", color:"#EF4444", fontSize:12, cursor:"pointer" }}>삭제</button>
+                  )}
+                </div>
+                {[
+                  { label:"약 이름 *", key:"name", placeholder:"타이레놀현탁액" },
+                  { label:"1회 용량", key:"dosage", placeholder:"5mL, 1포, 1정" },
+                  { label:"복용 횟수", key:"times", placeholder:"하루 3회" },
+                  { label:"복용 주의사항", key:"comment", placeholder:"식후 복용" },
+                ].map(f => (
+                  <div key={f.key} style={{ marginBottom:8 }}>
+                    <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10, marginBottom:3 }}>{f.label}</div>
+                    <input
+                      type="text"
+                      value={m[f.key]}
+                      placeholder={f.placeholder}
+                      onChange={e => {
+                        const meds = [...manual.medicines];
+                        meds[mi] = {...meds[mi], [f.key]: e.target.value};
+                        setManual(p=>({...p, medicines:meds}));
+                      }}
+                      style={{
+                        width:"100%", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
+                        borderRadius:8, padding:"8px 10px", color:"white", fontSize:13, outline:"none",
+                      }}
+                    />
+                  </div>
+                ))}
+                <div style={{ display:"flex", gap:8 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10, marginBottom:3 }}>복용 일수</div>
+                    <input
+                      type="number"
+                      value={m.days}
+                      min="1" max="30"
+                      onChange={e => {
+                        const meds = [...manual.medicines];
+                        meds[mi] = {...meds[mi], days: parseInt(e.target.value)||1};
+                        setManual(p=>({...p, medicines:meds}));
+                      }}
+                      style={{
+                        width:"100%", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
+                        borderRadius:8, padding:"8px 10px", color:"white", fontSize:13, outline:"none",
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10, marginBottom:3 }}>제형</div>
+                    <select
+                      value={m.form}
+                      onChange={e => {
+                        const meds = [...manual.medicines];
+                        meds[mi] = {...meds[mi], form: e.target.value};
+                        setManual(p=>({...p, medicines:meds}));
+                      }}
+                      style={{
+                        width:"100%", background:"rgba(30,30,60,0.9)", border:"1px solid rgba(255,255,255,0.1)",
+                        borderRadius:8, padding:"8px 10px", color:"white", fontSize:13, outline:"none",
+                      }}
+                    >
+                      {["시럽","분말","정제","캡슐","연고","좌약","흡입","점안","기타"].map(f=>(
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10, marginBottom:3 }}>분류</div>
+                    <select
+                      value={m.category}
+                      onChange={e => {
+                        const meds = [...manual.medicines];
+                        meds[mi] = {...meds[mi], category: e.target.value};
+                        setManual(p=>({...p, medicines:meds}));
+                      }}
+                      style={{
+                        width:"100%", background:"rgba(30,30,60,0.9)", border:"1px solid rgba(255,255,255,0.1)",
+                        borderRadius:8, padding:"8px 10px", color:"white", fontSize:13, outline:"none",
+                      }}
+                    >
+                      {Object.keys(CAT_COLOR).map(c=>(
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              onClick={() => setManual(p=>({...p, medicines:[...p.medicines, { name:"", dosage:"", times:"하루 3회", days:3, category:"기타", form:"시럽", comment:"" }]}))}
+              style={{
+                width:"100%", border:"1.5px dashed rgba(100,200,255,0.4)", borderRadius:10,
+                padding:"10px", color:"rgba(100,200,255,0.7)", background:"transparent",
+                fontSize:13, fontWeight:700, cursor:"pointer",
+              }}
+            >+ 약 추가</button>
+          </div>
+
+          {/* 저장 버튼 */}
+          <div style={{ display:"flex", gap:10 }}>
+            <button onClick={() => setStep("idle")} style={{
+              flex:1, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
+              borderRadius:12, padding:"13px", color:"rgba(255,255,255,0.55)", fontSize:13, cursor:"pointer",
+            }}>취소</button>
+            <button onClick={() => {
+              if (!manual.hospital) { alert("병원명을 입력해주세요"); return; }
+              if (!manual.medicines[0].name) { alert("약 이름을 입력해주세요"); return; }
+              const rx = {
+                ...manual,
+                id: Date.now(),
+                accent: ACCENT_COLORS[Math.floor(Math.random() * ACCENT_COLORS.length)],
+                medicines: manual.medicines.filter(m => m.name),
+              };
+              onSave(rx);
+            }} style={{
+              flex:2, background:"#1A1A2E", border:"none",
+              borderRadius:12, padding:"13px", color:"white", fontSize:14, fontWeight:700, cursor:"pointer",
+            }}>저장하기</button>
+          </div>
         </div>
       )}
 
