@@ -159,12 +159,15 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
               alignItems:"center", justifyContent:"center", marginBottom:28,
               position:"relative", cursor:"pointer",
               background:"rgba(255,255,255,0.02)",
+              textAlign:"center",
             }}
           >
-            <span style={{ fontSize:48 }}>📄</span>
-            <span style={{ color:"rgba(255,255,255,0.4)", fontSize:12, marginTop:8, textAlign:"center", lineHeight:1.6 }}>
-              약봉지를 찍거나<br/>이미지를 선택하세요
-            </span>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:8 }}>
+              <span style={{ fontSize:48, lineHeight:1 }}>📷</span>
+              <span style={{ color:"rgba(255,255,255,0.4)", fontSize:12, textAlign:"center", lineHeight:1.6 }}>
+                약봉지를 찍거나<br/>이미지를 선택하세요
+              </span>
+            </div>
             {[["top","left"],["top","right"],["bottom","left"],["bottom","right"]].map(([v,h],i)=>(
               <div key={i} style={{
                 position:"absolute",[v]:-2,[h]:-2,width:18,height:18,
