@@ -149,7 +149,7 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
 
       {/* IDLE: 업로드 UI */}
       {step === "idle" && (
-        <>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", width:"100%" }}>
           <div
             onClick={() => document.getElementById("med-file-input").click()}
             style={{
@@ -198,7 +198,7 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
           <div style={{ color:"rgba(255,255,255,0.2)", fontSize:11, marginTop:16, textAlign:"center" }}>
             AI가 약봉지 내용을 자동으로 읽어드려요
           </div>
-        </>
+        </div>
       )}
 
       {/* ANALYZING */}
