@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "./firebase";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // 제형 타입
 const FORM_ICON = {
@@ -98,54 +98,17 @@ function ScanScreen({ onCancel, onSave, CAT_COLOR, FORM_ICON, MedBadge }) {
         r.readAsDataURL(file);
       });
 
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      const resp = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: [
-              {
-                type: "image",
-                source: { type: "base64", media_type: file.type || "image/jpeg", data: base64 }
-              },
-              {
-                type: "text",
-                text: `이 약봉지 이미지를 분석해서 아래 JSON 형식으로만 응답해주세요. 다른 텍스트 없이 JSON만 출력하세요.
-
-{
-  "hospital": "병원명",
-  "doctor": "원장/의사 이름 (없으면 빈문자열)",
-  "date": "YYYY-MM-DD 형식 (없으면 오늘 날짜)",
-  "symptom": "진단명/증상",
-  "memo": "특이사항 또는 복약 주의사항 (없으면 빈문자열)",
-  "medicines": [
-    {
-      "name": "약 이름",
-      "dosage": "용량 (예: 5mL, 1포, 1정)",
-      "times": "복용 횟수 (예: 하루 3회)",
-      "days": 5,
-      "category": "항생제|해열진통제|거담제|항히스타민제|소화제|기관지확장제|스테로이드|외용제|유산균|기타 중 하나",
-      "form": "시럽|분말|정제|캡슐|연고|흡입|좌약|기타 중 하나",
-      "comment": "복약 주의사항 간단히 (없으면 빈문자열)"
-    }
-  ]
-}
-
-약봉지가 아니거나 읽을 수 없으면: {"error": "읽을 수 없는 이미지입니다"}`
-              }
-            ]
-          }]
+          imageBase64: base64,
+          mediaType: file.type || "image/jpeg",
         })
       });
 
-      const data = await resp.json();
-      const text = data.content?.map(c => c.text || "").join("") || "";
-      const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-
+      const parsed = await resp.json();
+      if (!resp.ok) throw new Error(parsed.error || "분석 실패");
       if (parsed.error) throw new Error(parsed.error);
 
       const rx = {
@@ -1369,6 +1332,7 @@ export default function MedBagApp() {
           borderTop:"1px solid rgba(0,0,0,0.07)",
           display:"flex", justifyContent:"space-around", alignItems:"center",
           padding:"8px 0 28px",
+          zIndex:100,
         }}>
           {[
             {icon:"🏠", label:"홈", id:"home"},
@@ -1385,14 +1349,15 @@ export default function MedBagApp() {
           ))}
 
           {/* FAB */}
-          <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center" }}>
-            <button onClick={()=>setScreen("scan")} style={{
-              width:50, height:50, marginTop:-22,
+          <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center", zIndex:101, position:"relative" }}>
+            <button onClick={()=>{ console.log("스캔 클릭"); setScreen("scan"); }} style={{
+              width:56, height:56, marginTop:-26,
               background:"linear-gradient(135deg,#1A1A2E,#4A4A8E)",
               border:"3px solid white", borderRadius:"50%",
               display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:20, cursor:"pointer",
+              fontSize:22, cursor:"pointer",
               boxShadow:"0 4px 14px rgba(26,26,46,0.35)",
+              zIndex:101, position:"relative",
             }}>📸</button>
           </div>
 
