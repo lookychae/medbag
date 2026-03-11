@@ -93,10 +93,14 @@ export default function MedBagApp() {
       )}
 
       <style>{`
-        * { box-sizing:border-box; margin:0; padding:0; }
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        body, input, textarea, select, button {
+          font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
-        input::placeholder { color:rgba(255,255,255,0.35); }
+        input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.35); }
       `}</style>
     </div>
   );

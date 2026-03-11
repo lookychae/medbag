@@ -246,7 +246,7 @@ export function ChildEditScreen({ profileDraft, setProfileDraft, saveChildProfil
           <div style={{fontSize:11,fontWeight:700,color:"#8E8E93",letterSpacing:0.8,marginBottom:14}}>📋 특이사항 / 주의</div>
           <textarea value={profileDraft.notes||""} placeholder="편식이 심함, 약 먹이기 힘듦, 주의사항 등"
             onChange={e=>set("notes",e.target.value)}
-            style={{width:"100%",minHeight:80,border:"1px solid #E5E5EA",borderRadius:10,padding:"10px 12px",fontSize:13,lineHeight:1.7,resize:"none",outline:"none",color:"#1C1C1E",background:"#FAFAFA",fontFamily:"'Apple SD Gothic Neo',sans-serif"}}/>
+            style={{width:"100%",minHeight:80,border:"1px solid #E5E5EA",borderRadius:10,padding:"10px 12px",fontSize:13,lineHeight:1.7,resize:"none",outline:"none",color:"#1C1C1E",background:"#FAFAFA",fontFamily:"'Pretendard',-apple-system,sans-serif"}}/>
         </div>
 
         <button onClick={handleSave} style={{background:"#1A1A2E",border:"none",borderRadius:14,padding:"16px",color:"white",fontSize:15,fontWeight:700,cursor:"pointer",marginTop:4,boxShadow:"0 4px 14px rgba(0,0,0,0.15)"}}>저장하기</button>

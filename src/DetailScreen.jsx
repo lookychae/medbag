@@ -88,7 +88,7 @@ export default function DetailScreen({ selected, memos, saveMemos, memoEditing, 
           {memoEditing ? (
             <textarea autoFocus placeholder="복약 상황, 부작용, 기타 참고 메모를 자유롭게 입력해주세요"
               value={memos[selected.id]||""} onChange={e=>saveMemos({...memos,[selected.id]:e.target.value})}
-              style={{width:"100%",minHeight:90,border:"1.5px solid #E5E5EA",borderRadius:10,padding:"10px 12px",fontSize:13,color:"#1C1C1E",lineHeight:1.7,resize:"none",outline:"none",fontFamily:"'Apple SD Gothic Neo',sans-serif",background:"#FAFAFA"}}/>
+              style={{width:"100%",minHeight:90,border:"1.5px solid #E5E5EA",borderRadius:10,padding:"10px 12px",fontSize:13,color:"#1C1C1E",lineHeight:1.7,resize:"none",outline:"none",fontFamily:"'Pretendard',-apple-system,sans-serif",background:"#FAFAFA"}}/>
           ) : memos[selected.id] ? (
             <div style={{fontSize:15,color:"#3C3C3C",lineHeight:1.8,padding:"12px 14px",background:"#FAFAFA",borderRadius:10,whiteSpace:"pre-wrap"}}>{memos[selected.id]}</div>
           ) : (

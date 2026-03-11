@@ -12,8 +12,8 @@ export default function MedBadge({ dosage, color, form, small = false }) {
       <rect x="0" y="0" width={w} height={h} rx={r} fill={color+"20"} />
       <path d={leftPath} fill={color} />
       <circle cx={r*0.65} cy={h*0.35} r={r*0.22} fill="rgba(255,255,255,0.35)" />
-      <text x={w*0.27} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Apple SD Gothic Neo',sans-serif" fill="white">{num}</text>
-      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Apple SD Gothic Neo',sans-serif" fill={color}>{unit||"mL"}</text>
+      <text x={w*0.27} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Pretendard',-apple-system,sans-serif" fill="white">{num}</text>
+      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Pretendard',-apple-system,sans-serif" fill={color}>{unit||"mL"}</text>
     </svg>
   );
 
@@ -22,8 +22,8 @@ export default function MedBadge({ dosage, color, form, small = false }) {
       <rect x="0" y="0" width={w} height={h} rx={4} fill={color+"18"} />
       <rect x="0" y="0" width={w*0.52} height={h} rx={4} fill={color} />
       <line x1={w*0.52} y1={4} x2={w*0.52} y2={h-4} stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="2,2" />
-      <text x={w*0.26} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Apple SD Gothic Neo',sans-serif" fill="white">{num}</text>
-      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Apple SD Gothic Neo',sans-serif" fill={color}>{unit||"포"}</text>
+      <text x={w*0.26} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Pretendard',-apple-system,sans-serif" fill="white">{num}</text>
+      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Pretendard',-apple-system,sans-serif" fill={color}>{unit||"포"}</text>
     </svg>
   );
 
@@ -32,8 +32,8 @@ export default function MedBadge({ dosage, color, form, small = false }) {
       <rect x="0" y="0" width={w} height={h} rx={r} fill={color+"20"} />
       <path d={leftPath} fill={color} />
       <ellipse cx={r*0.8} cy={h*0.32} rx={r*0.38} ry={h*0.16} fill="rgba(255,255,255,0.28)" />
-      <text x={w*0.27} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Apple SD Gothic Neo',sans-serif" fill="white">{num}</text>
-      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Apple SD Gothic Neo',sans-serif" fill={color}>{unit||"정"}</text>
+      <text x={w*0.27} y={h/2+fs*0.37} textAnchor="middle" fontSize={fs} fontWeight="800" fontFamily="'Pretendard',-apple-system,sans-serif" fill="white">{num}</text>
+      <text x={w*0.77} y={h/2+ufs*0.37} textAnchor="middle" fontSize={ufs} fontWeight="700" fontFamily="'Pretendard',-apple-system,sans-serif" fill={color}>{unit||"정"}</text>
     </svg>
   );
 }

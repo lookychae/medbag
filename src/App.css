@@ -580,7 +580,7 @@ export default function MedBagApp() {
           }}>📸</button>
 
           {[{icon:"🧒",label:"아이 정보"},{icon:"👤",label:"보호자"}].map((tab,i)=>(
-            <button key={i} style={{
+            <button ke={i} style={{
               background:"none", border:"none", cursor:"pointer",
               display:"flex", flexDirection:"column", alignItems:"center", gap:3, opacity:0.3,
             }}>
