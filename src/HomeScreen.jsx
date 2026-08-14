@@ -1,10 +1,154 @@
-import { CAT_COLOR, FORM_ICON } from "./constants";
+import { useState, useRef } from "react";
+import { FORM_ICON } from "./constants";
+import { COLORS, GRADIENTS, SAFE_TOP } from "./theme";
 import MedBadge from "./MedBadge";
+import Chip from "./Chip";
+import { catColor } from "./utils";
 
-export default function HomeScreen({ prescriptions, memos, search, setSearch, setScreen, setSelected, setMemoEditing }) {
+const RECENT_KEY = "medbag_recent_searches";
+const MAX_RECENT = 8;
+const loadRecent = () => {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+};
+const saveRecent = (list) => localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+
+const ACTION_W = 160; // 수정(80) + 삭제(80)
+
+function SwipeableCard({ rx, memos, onDelete, onEdit, onClick }) {
+  const [offsetX, setOffsetX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const startX = useRef(0);
+
+  const onTouchStart = (e) => {
+    startX.current = e.touches[0].clientX;
+    setSwiping(true);
+  };
+  const onTouchMove = (e) => {
+    const dx = e.touches[0].clientX - startX.current;
+    if (dx < 0) setOffsetX(Math.max(dx, -ACTION_W));
+    else if (offsetX < 0) setOffsetX(Math.min(0, offsetX + dx));
+  };
+  const onTouchEnd = () => {
+    setSwiping(false);
+    setOffsetX(offsetX < -ACTION_W / 2 ? -ACTION_W : 0);
+  };
+  const handleClick = () => {
+    if (offsetX < 0) { setOffsetX(0); return; }
+    onClick();
+  };
+
+  return (
+    <div style={{position:"relative",marginBottom:10,borderRadius:16,overflow:"hidden"}}>
+      {/* 뒤에 있는 수정/삭제 버튼 */}
+      <div style={{position:"absolute",top:0,right:0,bottom:0,width:ACTION_W,display:"flex",borderRadius:"0 16px 16px 0",overflow:"hidden"}}>
+        <div style={{flex:1,background:"#3B82F6",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer"}}
+          onClick={() => { setOffsetX(0); onEdit(rx); }}>
+          <span style={{fontSize:20,marginBottom:2}}>✏️</span>
+          <span style={{color:"white",fontSize:12,fontWeight:700}}>수정</span>
+        </div>
+        <div style={{flex:1,background:"#EF4444",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer",borderRadius:"0 16px 16px 0"}}
+          onClick={() => onDelete(rx.id)}>
+          <span style={{fontSize:20,marginBottom:2}}>🗑️</span>
+          <span style={{color:"white",fontSize:12,fontWeight:700}}>삭제</span>
+        </div>
+      </div>
+
+      {/* 카드 */}
+      <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onClick={handleClick}
+        style={{
+          transform:`translateX(${offsetX}px)`,
+          transition:swiping ? "none" : "transform 0.25s ease",
+          background:"white",borderRadius:16,overflow:"hidden",
+          boxShadow:"0 2px 10px rgba(0,0,0,0.07)",cursor:"pointer",
+          borderLeft:`4px solid ${rx.accent}`,position:"relative",zIndex:1,
+        }}
+      >
+        {/* Card header */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 14px 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <div style={{background:rx.accent+"18",borderRadius:8,padding:"3px 9px"}}>
+              <span style={{fontSize:17,fontWeight:800,color:rx.accent}}>{rx.date.slice(5).replace("-","/")}</span>
+            </div>
+            <div style={{background:"#F2F2F7",borderRadius:6,padding:"2px 7px",fontSize:13,fontWeight:700,color:"#555"}}>
+              총 {Math.max(...rx.medicines.map(m=>m.days))}일
+            </div>
+            <span style={{fontSize:13,color:"#8E8E93"}}>{rx.hospital}</span>
+          </div>
+          <div style={{width:32,height:32,borderRadius:"50%",background:"#F2F2F7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Symptom */}
+        <div style={{padding:"5px 14px 0",display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:13,color:"#555",fontWeight:600}}>🩺 {rx.symptom}</span>
+        </div>
+
+        {/* Medicines */}
+        <div style={{padding:"8px 14px",paddingBottom:memos[rx.id]?8:12}}>
+          {rx.medicines.map((m,i) => (
+            <div key={i} style={{paddingTop:i===0?0:12,marginTop:i===0?0:12,borderTop:i===0?"none":"1px solid #F2F2F7"}}>
+              {/* Row 1: 아이콘 + 약 이름 (긴 이름도 두 줄까지 자연스럽게 표시) */}
+              <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                <span style={{fontSize:18,flexShrink:0,lineHeight:1.4}}>{FORM_ICON[m.form]||"💊"}</span>
+                <div style={{flex:1,minWidth:0,fontSize:15,fontWeight:700,color:"#1C1C1E",lineHeight:1.4,wordBreak:"break-word"}}>{m.name}</div>
+              </div>
+              {/* Row 2: 용량(컬러) · 횟수 · 일수 chip 정보줄 */}
+              <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginTop:6,paddingLeft:26}}>
+                <MedBadge dosage={m.dosage} color={catColor(m)} />
+                <Chip>{m.times}</Chip>
+                <Chip>{m.days}일</Chip>
+              </div>
+              {m.comment && (
+                <div style={{fontSize:12,color:"#8E8E93",paddingLeft:26,marginTop:5,lineHeight:1.4}}>{m.comment}</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Memo preview */}
+        {memos[rx.id] && (
+          <div style={{margin:"0 14px 12px",background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"flex-start",gap:6}}>
+            <span style={{fontSize:13,flexShrink:0,marginTop:1}}>📝</span>
+            <span style={{fontSize:12,color:"#92400E",lineHeight:1.5,overflow:"hidden",textOverflow:"ellipsis",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
+              {memos[rx.id]}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function HomeScreen({ prescriptions, memos, search, setSearch, setScreen, setSelected, setMemoEditing, onDelete, onEdit }) {
+  const [recents, setRecents] = useState(loadRecent);
+
+  const commitRecent = (kw) => {
+    const k = kw.trim();
+    if (!k) return;
+    const next = [k, ...recents.filter(r => r !== k)].slice(0, MAX_RECENT);
+    setRecents(next);
+    saveRecent(next);
+  };
+
+  const removeRecent = (kw) => {
+    const next = recents.filter(r => r !== kw);
+    setRecents(next);
+    saveRecent(next);
+  };
+
+  const onSearchBlur = () => commitRecent(search);
+  const onSearchKeyDown = (e) => { if (e.key === "Enter") { commitRecent(search); e.target.blur(); } };
+
   const filtered = prescriptions.filter(p =>
     !search || p.hospital.includes(search) || p.symptom.includes(search) ||
-    p.child?.includes(search) || p.medicines.some(m => m.name.includes(search))
+    p.medicines.some(m => m.name.includes(search))
   );
 
   const grouped = filtered.reduce((acc, p) => {
@@ -19,13 +163,13 @@ export default function HomeScreen({ prescriptions, memos, search, setSearch, se
   return (
     <div style={{paddingBottom:110}}>
       {/* Header */}
-      <div style={{background:"#1A1A2E",padding:"52px 22px 22px",position:"relative"}}>
+      <div style={{background:COLORS.navy,padding:`${SAFE_TOP(16)} 22px 22px`,position:"relative"}}>
         <div style={{position:"absolute",top:-50,right:-50,width:200,height:200,borderRadius:"50%",background:"rgba(255,255,255,0.03)",pointerEvents:"none"}}/>
         <div style={{position:"absolute",top:10,right:20,width:90,height:90,borderRadius:"50%",background:"rgba(100,200,255,0.06)",pointerEvents:"none"}}/>
 
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <div style={{width:34,height:34,background:"linear-gradient(135deg,#64C8FF,#A78BFA)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17}}>💊</div>
+            <div style={{width:34,height:34,background:GRADIENTS.primary,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17}}>💊</div>
             <span style={{color:"white",fontSize:19,fontWeight:700,letterSpacing:-0.5}}>약봉지</span>
             <span style={{color:"rgba(255,255,255,0.3)",fontSize:12}}>MedBag</span>
           </div>
@@ -39,9 +183,41 @@ export default function HomeScreen({ prescriptions, memos, search, setSearch, se
 
         <div style={{background:"rgba(255,255,255,0.1)",borderRadius:12,display:"flex",alignItems:"center",gap:8,padding:"10px 14px"}}>
           <span style={{color:"rgba(255,255,255,0.4)",fontSize:14}}>🔍</span>
-          <input placeholder="약 이름, 증상, 병원명 검색" value={search} onChange={e=>setSearch(e.target.value)}
-            style={{background:"transparent",border:"none",outline:"none",color:"white",fontSize:14,flex:1}}/>
+          <input placeholder="약 이름, 증상, 병원명 검색" value={search}
+            onChange={e=>setSearch(e.target.value)}
+            onBlur={onSearchBlur} onKeyDown={onSearchKeyDown}
+            style={{background:"transparent",border:"none",outline:"none",color:"white",fontSize:14,flex:1,minWidth:0}}/>
+          {search && (
+            <button onClick={() => setSearch("")} aria-label="검색어 지우기"
+              style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"50%",width:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",padding:0,flexShrink:0}}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          )}
         </div>
+
+        {recents.length > 0 && (
+          <div className="recent-scroll" style={{display:"flex",gap:6,marginTop:10,overflowX:"auto",paddingBottom:2,scrollbarWidth:"none",msOverflowStyle:"none"}}>
+            <style>{`.recent-scroll::-webkit-scrollbar{display:none}`}</style>
+            {recents.map(kw => (
+              <div key={kw} style={{display:"flex",alignItems:"center",background:"rgba(255,255,255,0.12)",borderRadius:14,paddingLeft:10,paddingRight:4,height:26,flexShrink:0}}>
+                <button onClick={() => setSearch(kw)}
+                  style={{background:"none",border:"none",color:"rgba(255,255,255,0.85)",fontSize:12,fontWeight:600,cursor:"pointer",padding:"0 6px 0 0",whiteSpace:"nowrap"}}>
+                  {kw}
+                </button>
+                <button onClick={() => removeRecent(kw)} aria-label={`${kw} 삭제`}
+                  style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:16,height:16,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",padding:0,flexShrink:0}}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* List */}
@@ -52,60 +228,14 @@ export default function HomeScreen({ prescriptions, memos, search, setSearch, se
               {month.replace("-","년 ")}월
             </div>
             {grouped[month].map(rx => (
-              <div key={rx.id} onClick={()=>goDetail(rx)}
-                style={{background:"white",borderRadius:16,marginBottom:10,overflow:"hidden",
-                  boxShadow:"0 2px 10px rgba(0,0,0,0.07)",cursor:"pointer",borderLeft:`4px solid ${rx.accent}`}}>
-                {/* Card header */}
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 14px 0"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <div style={{background:rx.accent+"18",borderRadius:8,padding:"3px 9px"}}>
-                      <span style={{fontSize:17,fontWeight:800,color:rx.accent}}>{rx.date.slice(5).replace("-","/")}</span>
-                    </div>
-                    <div style={{background:"#F2F2F7",borderRadius:6,padding:"2px 7px",fontSize:13,fontWeight:700,color:"#555"}}>
-                      총 {Math.max(...rx.medicines.map(m=>m.days))}일
-                    </div>
-                    <span style={{fontSize:13,color:"#8E8E93"}}>{rx.hospital}</span>
-                  </div>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:"#F2F2F7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 18 15 12 9 6"/>
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Symptom */}
-                <div style={{padding:"5px 14px 0",display:"flex",alignItems:"center",gap:6}}>
-                  <span style={{fontSize:13,color:"#555",fontWeight:600}}>🩺 {rx.symptom}</span>
-                </div>
-
-                {/* Medicines */}
-                <div style={{padding:"8px 14px",paddingBottom:memos[rx.id]?8:12}}>
-                  {rx.medicines.map((m,i) => (
-                    <div key={i} style={{paddingTop:i===0?0:8,marginTop:i===0?0:8,borderTop:i===0?"none":"1px solid #F2F2F7"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:4}}>
-                        <span style={{fontSize:16,flexShrink:0}}>{FORM_ICON[m.form]||"💊"}</span>
-                        <div style={{flex:1,fontSize:15,fontWeight:700,color:"#1C1C1E",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.name}</div>
-                        <MedBadge dosage={m.dosage} color={CAT_COLOR[m.category]||"#888"} form={m.form} small/>
-                      </div>
-                      <div style={{display:"flex",alignItems:"center",gap:6,paddingLeft:20}}>
-                        <div style={{flex:1,fontSize:12,color:"#8E8E93",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.comment||""}</div>
-                        <div style={{fontSize:12,color:"#555",fontWeight:600,background:"#F5F5F5",borderRadius:5,padding:"3px 9px",flexShrink:0,whiteSpace:"nowrap"}}>{m.times}</div>
-                        <div style={{fontSize:12,color:"#555",fontWeight:600,background:"#F5F5F5",borderRadius:5,padding:"3px 9px",flexShrink:0,whiteSpace:"nowrap"}}>{m.days}일</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Memo preview */}
-                {memos[rx.id] && (
-                  <div style={{margin:"0 14px 12px",background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"flex-start",gap:6}}>
-                    <span style={{fontSize:13,flexShrink:0,marginTop:1}}>📝</span>
-                    <span style={{fontSize:12,color:"#92400E",lineHeight:1.5,overflow:"hidden",textOverflow:"ellipsis",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
-                      {memos[rx.id]}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <SwipeableCard
+                key={rx.id}
+                rx={rx}
+                memos={memos}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onClick={() => goDetail(rx)}
+              />
             ))}
           </div>
         ))}

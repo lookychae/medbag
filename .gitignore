@@ -25,3 +25,12 @@ dist-ssr
 
 .vercel
 .env*.local
+
+# Firebase 빌드 캐시
+.firebase/
+
+# Claude Code 로컬 설정 (팀원 각자 자기 것을 만듦)
+.claude/
+
+# 개인 참고 파일
+*.xlsx
