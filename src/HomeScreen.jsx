@@ -1,8 +1,6 @@
 import { useState, useRef } from "react";
 import { FORM_ICON } from "./constants";
 import { COLORS, GRADIENTS, SAFE_TOP } from "./theme";
-import MedBadge from "./MedBadge";
-import Chip from "./Chip";
 import { catColor } from "./utils";
 
 const RECENT_KEY = "medbag_recent_searches";
@@ -90,26 +88,36 @@ function SwipeableCard({ rx, memos, onDelete, onEdit, onClick }) {
           <span style={{fontSize:13,color:"#555",fontWeight:600}}>🩺 {rx.symptom}</span>
         </div>
 
-        {/* Medicines */}
-        <div style={{padding:"8px 14px",paddingBottom:memos[rx.id]?8:12}}>
-          {rx.medicines.map((m,i) => (
-            <div key={i} style={{paddingTop:i===0?0:12,marginTop:i===0?0:12,borderTop:i===0?"none":"1px solid #F2F2F7"}}>
-              {/* Row 1: 아이콘 + 약 이름 (긴 이름도 두 줄까지 자연스럽게 표시) */}
-              <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
-                <span style={{fontSize:18,flexShrink:0,lineHeight:1.4}}>{FORM_ICON[m.form]||"💊"}</span>
-                <div style={{flex:1,minWidth:0,fontSize:15,fontWeight:700,color:"#1C1C1E",lineHeight:1.4,wordBreak:"break-word"}}>{m.name}</div>
+        {/* Medicines — 컬럼 정렬 표 스타일 (약 | 용량 | 횟수 | 기간) */}
+        <div style={{padding:"4px 14px 10px",paddingBottom:memos[rx.id]?8:12}}>
+          <div style={{
+            display:"grid",gridTemplateColumns:"1fr 62px 68px 36px",gap:8,
+            padding:"8px 4px 6px",borderBottom:"1px solid #F2F2F7",
+            fontSize:10,color:"#C7C7CC",fontWeight:800,letterSpacing:0.8,
+          }}>
+            <span>약</span>
+            <span style={{textAlign:"center"}}>용량</span>
+            <span style={{textAlign:"right"}}>횟수</span>
+            <span style={{textAlign:"right"}}>기간</span>
+          </div>
+          {rx.medicines.map((m,i) => {
+            const c = catColor(m);
+            return (
+              <div key={i} style={{
+                display:"grid",gridTemplateColumns:"1fr 62px 68px 36px",gap:8,
+                alignItems:"center",padding:"8px 4px",
+                borderTop:i===0?"none":"1px solid #F7F7F7",
+              }}>
+                <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                  <span style={{fontSize:14,flexShrink:0}}>{FORM_ICON[m.form]||"💊"}</span>
+                  <div style={{fontSize:13,fontWeight:700,color:"#1C1C1E",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.name}</div>
+                </div>
+                <div style={{background:c+"1F",color:c,padding:"3px 6px",borderRadius:6,fontSize:11,fontWeight:800,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{m.dosage}</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#8E8E93",textAlign:"right",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{m.times}</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#8E8E93",textAlign:"right",whiteSpace:"nowrap"}}>{m.days}일</div>
               </div>
-              {/* Row 2: 용량(컬러) · 횟수 · 일수 chip 정보줄 */}
-              <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginTop:6,paddingLeft:26}}>
-                <MedBadge dosage={m.dosage} color={catColor(m)} />
-                <Chip>{m.times}</Chip>
-                <Chip>{m.days}일</Chip>
-              </div>
-              {m.comment && (
-                <div style={{fontSize:12,color:"#8E8E93",paddingLeft:26,marginTop:5,lineHeight:1.4}}>{m.comment}</div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Memo preview */}

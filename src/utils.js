@@ -11,3 +11,21 @@ export function parseDosage(s) {
   const m = String(s).match(/^(\d+\.?\d*)\s*(.*)$/);
   return m ? { amt: m[1], unit: (m[2] || "mL").trim() } : { amt: "", unit: "mL" };
 }
+
+// 기존 처방전에서 병원별 최근 정보 뽑기 (중복 제거, 최신순, 최대 8개).
+// HospitalPicker · HospitalInput 자동완성에서 공유.
+export function getRecentHospitals(prescriptions = []) {
+  const seen = new Map();
+  const sorted = [...prescriptions].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  for (const rx of sorted) {
+    if (!rx.hospital) continue;
+    if (seen.has(rx.hospital)) continue;
+    seen.set(rx.hospital, {
+      hospital: rx.hospital,
+      doctor: rx.doctor || "",
+      accent: rx.accent || "#F97316",
+      lastDate: rx.date || "",
+    });
+  }
+  return Array.from(seen.values()).slice(0, 8);
+}

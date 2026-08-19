@@ -19,7 +19,8 @@ import HomeScreen from "./HomeScreen";
 import DetailScreen from "./DetailScreen";
 import ScanScreen from "./ScanScreen";
 import GrowthChart from "./GrowthChart";
-import { ChildScreen, ChildEditScreen } from "./ChildScreens";
+import ChildScreen from "./ChildScreen";
+import ChildEditScreen from "./ChildEditScreen";
 import { MedsScreen } from "./TabScreens";
 import EditPrescriptionScreen from "./EditPrescriptionScreen";
 import SupplementsScreen from "./SupplementsScreen";
@@ -132,6 +133,7 @@ export default function MedBagApp() {
       {screen === "edit" && editTarget && (
         <EditPrescriptionScreen
           rx={editTarget}
+          prescriptions={prescriptions}
           onCancel={() => { setScreen("home"); setEditTarget(null); }}
           onSave={handleEditSave}
         />
